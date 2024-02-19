@@ -1,0 +1,45 @@
+* git-credential-msal
+
+This repository contains tooling to help with git over HTTP flows using
+Microsoft SSO with OIDC Id tokens. For information on how to configure the
+server for this flow, please look at the [[https://binary-eater.github.io/posts/git_oidc/][related blog post]].
+
+** Dependencies
+
+The only required dependency aside from a relatively new version of python3 is
+~msal-python~.
+
+If you would like to have the credential helper program re-use OIDC Id tokens to
+minimize SSO logins for remote related git operations, you may want to install
+the following python dependencies as well.
+
++ ~pyjwt~
++ ~keyring~
+
+** Setup
+
+Run the following to have ~git~ utilize the credential helper.
+
+#+BEGIN_SRC sh
+git config --global --add credential.helper msal
+#+END_SRC
+
+If you are only going to use this helper for a select few repos, you could
+consider not using the ~--global~ flag.
+
+You may want to use this helper in combination with another helper that supports
+the store action.
+
+#+BEGIN_SRC sh
+git config --global --add credential.helper cache
+git config --global --add credential.helper msal
+#+END_SRC
+
+To configure the Microsoft Entra Id application client id and tenant id that
+~git-credential-msal~ will use for SSO, the following commands can be used.
+
+#+BEGIN_SRC sh
+git config --global credential.https://git.example.com.msalClientId <MSFT Entra Id App Client Id>
+git config --global credential.https://git.example.com.msalTenantId <MSFT Entra Id App Tenant Id>
+#+END_SRC
+
