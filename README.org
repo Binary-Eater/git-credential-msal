@@ -1,0 +1,5 @@
+* git-credential-msal
+
+This repository contains tooling to help with git over HTTP flows using
+Microsoft SSO with OIDC Id tokens. For more information, please look at the
+[[https://binary-eater.github.io/posts/git_oidc/][related blog post]].
