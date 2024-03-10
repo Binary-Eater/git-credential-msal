@@ -6,15 +6,12 @@ server for this flow, please look at the [[https://binary-eater.github.io/posts/
 
 ** Dependencies
 
-The only required dependency aside from a relatively new version of python3 is
-~msal-python~.
+Required dependencies
 
-If you would like to have the credential helper program re-use OIDC Id tokens to
-minimize SSO logins for remote related git operations, you may want to install
-the following python dependencies as well.
-
++ ~msal-python~
 + ~pyjwt~
 + ~keyring~
++ ~pyxdg~
 
 ** Setup
 
@@ -43,3 +40,6 @@ git config --global credential.https://git.example.com.msalClientId <MSFT Entra 
 git config --global credential.https://git.example.com.msalTenantId <MSFT Entra Id App Tenant Id>
 #+END_SRC
 
+**NOTE:** the server does need to at minimum advertise ~WWW-Authenticate:
+  Bearer~ in its initial 401 response for ~git-credential-msal~ to consider
+  forwarding the bearer token to the server.
