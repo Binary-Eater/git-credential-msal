@@ -40,6 +40,17 @@ git config --global credential.https://git.example.com.msalClientId <MSFT Entra 
 git config --global credential.https://git.example.com.msalTenantId <MSFT Entra Id App Tenant Id>
 #+END_SRC
 
+In special cases where your git server can provide a ~WWW-Authenticate~ HTTP
+response header like below, the ~git config~ above will not be necessary. The
+~git config~ values take precedence over what is advertised by the server.
+
+#+BEGIN_SRC
+WWW-Authenticate: Bearer msal-client-id=<MSFT Entra Id App Client Id>,msal-tenant-id=<MSFT Entra Id App Tenant Id>
+#+END_SRC
+
+~git~ will feed the above HTTP header to the credential helper program to
+consume.
+
 **NOTE:** the server does need to at minimum advertise ~WWW-Authenticate:
   Bearer~ in its initial 401 response for ~git-credential-msal~ to consider
   forwarding the bearer token to the server.
