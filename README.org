@@ -32,6 +32,16 @@ git config --global --add credential.helper cache
 git config --global --add credential.helper msal
 #+END_SRC
 
+In the situation where you are using ~git~ on a headless device, you may want to
+use OAuth 2.0 Device Authorization Grant to do the authentication flow on a
+different system. ~git-credential-msal~ can easily be configured to do so by
+using the ~-d~ / ~--device-code~ in your ~.gitconfig~.
+
+#+BEGIN_SRC conf
+[credential]
+	helper = msal -d
+#+END_SRC
+
 To configure the Microsoft Entra Id application client id and tenant id that
 ~git-credential-msal~ will use for SSO, the following commands can be used.
 
