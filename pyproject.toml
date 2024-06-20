@@ -1,0 +1,43 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+    "setuptools_scm>=8",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "git-credential-msal"
+dynamic = ["version"]
+description = "git-credential-helper powered by MSAL"
+authors = [
+    {name = "Rahul Rameshbabu", email = "sergeantsagara@protonmail.com"},
+    {name = "Aaron Plattner", email = "aaronp24@gmail.com"},
+]
+dependencies = [
+    "keyring",
+    "msal",
+    "pyjwt",
+    "pyxdg",
+]
+requires-python = ">=3.8.1"
+readme = "README.md"
+keywords = ["microsoft", "sso", "oauth2", "oidc", "git"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Software Development :: Version Control :: Git",
+]
+
+[project.scripts]
+git-credential-msal = "git_credential_msal.main:main"
+
+[project.urls]
+Repository = "https://github.com/Binary-Eater/git-credential-msal.git"
+Issues = "https://github.com/Binary-Eater/git-credential-msal/issues"
+
+[tool.setuptools_scm]
+
+[tool.isort]
+profile = "black"
