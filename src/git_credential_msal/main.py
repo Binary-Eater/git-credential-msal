@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 
 # pip install msal
@@ -24,6 +23,8 @@ import sys
 
 # pip install pyxdg
 import xdg.BaseDirectory
+
+from importlib.metadata import version, PackageNotFoundError
 
 http_cache_dir = os.path.join(xdg.BaseDirectory.xdg_cache_home, "git-credential-msal")
 
@@ -238,57 +239,69 @@ def msal_acquire_oidc_id_token(
     return id_token
 
 
-parser = argparse.ArgumentParser(
-    prog="git-credential-msal",
-    description="git-credential-helper for Microsoft SSO auth flows using MSAL",
-)
-parser.add_argument("command")
-parser.add_argument("-d", "--device-code", action="store_true")
-args = parser.parse_args()
-
-# The credential helper can only provide credentials
-# It cannot consume credentials from users to store
-if args.command != "get":
-    exit(0)
-
-helper_pairs = read_stdin_pairs()
-
-# Make sure the git implementation supports the `authtype` token.
-if not authtype_accepted(helper_pairs):
-    exit(0)
-
-# Make sure the server specified that a Bearer token is acceptable.
-if not bearer_accepted(helper_pairs):
-    exit(0)
-
-client_id, tenant_id = extract_entra_ids_from_git_config(helper_pairs)
-
-# Check if the server provide MSAL client id and tenant id if the user does not
-# have this information stored through git config.
-if client_id is None or tenant_id is None:
-    client_id, tenant_id = extract_entra_ids_from_wwwauth(helper_pairs)
-
-if client_id is None:
-    print(
-        "Missing Microsoft Entra client id needed by git-credential-msal",
-        file=sys.stderr,
+def main():
+    parser = argparse.ArgumentParser(
+        prog="git-credential-msal",
+        description="git-credential-helper for Microsoft SSO auth flows using MSAL",
     )
-if tenant_id is None:
-    print(
-        "Missing Microsoft Entra tenant id needed by git-credential-msal",
-        file=sys.stderr,
-    )
-if client_id is None or tenant_id is None:
-    exit(0)
+    parser.add_argument("command")
+    parser.add_argument("-d", "--device-code", action="store_true")
+    try:
+        parser.add_argument(
+            "-v", "--version", action="version", version=version("git_credential_msal")
+        )
+    except PackageNotFoundError:
+        # package is not installed
+        pass
+    args = parser.parse_args()
 
-# Chrome prints "Opening in existing browser session" to stdout, confusing
-# git-credential. Work around this by making stdout non-inheritable.
-os.set_inheritable(1, False)
+    # The credential helper can only provide credentials
+    # It cannot consume credentials from users to store
+    if args.command != "get":
+        exit(0)
 
-id_token = msal_acquire_oidc_id_token(client_id, tenant_id, args.device_code)
-expiry = jwt_expired_value(id_token)
+    helper_pairs = read_stdin_pairs()
 
-print("capability[]=authtype")
-print("authtype=Bearer")
-print(f"credential={id_token}")
-print(f"password_expiry_utc={expiry}")
+    # Make sure the git implementation supports the `authtype` token.
+    if not authtype_accepted(helper_pairs):
+        exit(0)
+
+    # Make sure the server specified that a Bearer token is acceptable.
+    if not bearer_accepted(helper_pairs):
+        exit(0)
+
+    client_id, tenant_id = extract_entra_ids_from_git_config(helper_pairs)
+
+    # Check if the server provide MSAL client id and tenant id if the user does not
+    # have this information stored through git config.
+    if client_id is None or tenant_id is None:
+        client_id, tenant_id = extract_entra_ids_from_wwwauth(helper_pairs)
+
+    if client_id is None:
+        print(
+            "Missing Microsoft Entra client id needed by git-credential-msal",
+            file=sys.stderr,
+        )
+    if tenant_id is None:
+        print(
+            "Missing Microsoft Entra tenant id needed by git-credential-msal",
+            file=sys.stderr,
+        )
+    if client_id is None or tenant_id is None:
+        exit(0)
+
+    # Chrome prints "Opening in existing browser session" to stdout, confusing
+    # git-credential. Work around this by making stdout non-inheritable.
+    os.set_inheritable(1, False)
+
+    id_token = msal_acquire_oidc_id_token(client_id, tenant_id, args.device_code)
+    expiry = jwt_expired_value(id_token)
+
+    print("capability[]=authtype")
+    print("authtype=Bearer")
+    print(f"credential={id_token}")
+    print(f"password_expiry_utc={expiry}")
+
+
+if __name__ == "__main__":
+    main()

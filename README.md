@@ -14,6 +14,15 @@ Required dependencies
 -   `keyring`
 -   `pyxdg`
 
+## Installation
+
+### Installing from source
+
+``` {.bash org-language="sh"}
+cd git-credential-msal
+python3 -m pip install .
+```
+
 ## Setup
 
 Run the following to have `git` utilize the credential helper.
