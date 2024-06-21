@@ -26,7 +26,7 @@ import xdg.BaseDirectory
 
 from importlib.metadata import version, PackageNotFoundError
 
-http_cache_dir = os.path.join(xdg.BaseDirectory.xdg_cache_home, "git-credential-msal")
+cache_dir = os.path.join(xdg.BaseDirectory.xdg_cache_home, "git-credential-msal")
 
 wwwauth_bearer_matcher = re.compile(r"^Bearer(?:\s*|\s+.+)")
 wwwauth_client_id_matcher = re.compile(
@@ -134,6 +134,16 @@ def extract_entra_ids_from_git_config(helper_pairs: dict[str, str]) -> tuple[str
     return (msal_client_id, msal_tenant_id)
 
 
+def get_msal_cache_insecure(name: str) -> str:
+    msal_cache_name = f"msal_cache_{name}"
+    msal_cache_path = os.path.join(cache_dir, msal_cache_name)
+    try:
+        with open(msal_cache_path, "r") as f:
+            return f.read()
+    except:
+        return None
+
+
 def get_msal_cache(name: str) -> SerializableTokenCache:
     cache = SerializableTokenCache()
     data = None
@@ -141,6 +151,8 @@ def get_msal_cache(name: str) -> SerializableTokenCache:
         data = keyring.get_password("system", name)
     except keyring.errors.NoKeyringError:
         pass
+    if not data:
+        data = get_msal_cache_insecure(name)
 
     if data:
         cache.deserialize(data)
@@ -148,17 +160,29 @@ def get_msal_cache(name: str) -> SerializableTokenCache:
     return cache
 
 
-def put_msal_cache(name: str, cache: SerializableTokenCache):
+def put_msal_cache_insecure(name: str, data: str, allow_insecure: bool):
+    if not allow_insecure:
+        return
+
+    os.makedirs(cache_dir, exist_ok=True)
+    msal_cache_name = f"msal_cache_{name}"
+    msal_cache_path = os.path.join(cache_dir, msal_cache_name)
+    with open(msal_cache_path, "w") as f:
+        f.write(data)
+
+
+def put_msal_cache(name: str, cache: SerializableTokenCache, allow_insecure: bool):
     if cache.has_state_changed:
         data = cache.serialize()
         try:
             keyring.set_password("system", name, data)
         except keyring.errors.NoKeyringError:
-            pass
+            put_msal_cache_insecure(name, data, allow_insecure)
 
 
 def get_http_cache(name: str) -> dict:
-    http_cache_path = os.path.join(http_cache_dir, name)
+    http_cache_name = f"http_cache_{name}"
+    http_cache_path = os.path.join(cache_dir, http_cache_name)
     try:
         with open(http_cache_path, "rb") as f:
             http_cache = pickle.load(f)
@@ -168,8 +192,9 @@ def get_http_cache(name: str) -> dict:
 
 
 def put_http_cache(name: str, http_cache: dict):
-    os.makedirs(http_cache_dir, exist_ok=True)
-    http_cache_path = os.path.join(http_cache_dir, name)
+    http_cache_name = f"http_cache_{name}"
+    os.makedirs(cache_dir, exist_ok=True)
+    http_cache_path = os.path.join(cache_dir, http_cache_name)
     pickle.dump(http_cache, open(http_cache_path, "wb"))
 
 
@@ -188,7 +213,10 @@ def jwt_expired_value(token: str) -> int:
 
 
 def msal_acquire_oidc_id_token(
-    client_id: str, tenant_id: str, device_code: bool
+    client_id: str,
+    tenant_id: str,
+    device_code: bool = False,
+    allow_insecure: bool = False,
 ) -> str:
     scopes = ["email openid User.Read"]
     id_token = None
@@ -241,7 +269,7 @@ def msal_acquire_oidc_id_token(
             },
         )[0]["secret"]
 
-    put_msal_cache(keyring_name, cache)
+    put_msal_cache(keyring_name, cache, allow_insecure)
     put_http_cache(keyring_name, http_cache)
     return id_token
 
@@ -253,6 +281,7 @@ def main():
     )
     parser.add_argument("command")
     parser.add_argument("-d", "--device-code", action="store_true")
+    parser.add_argument("-i", "--insecure", action="store_true")
     try:
         parser.add_argument(
             "-v", "--version", action="version", version=version("git_credential_msal")
@@ -301,7 +330,9 @@ def main():
     # git-credential. Work around this by making stdout non-inheritable.
     os.set_inheritable(1, False)
 
-    id_token = msal_acquire_oidc_id_token(client_id, tenant_id, args.device_code)
+    id_token = msal_acquire_oidc_id_token(
+        client_id, tenant_id, device_code=args.device_code, allow_insecure=args.insecure
+    )
     expiry = jwt_expired_value(id_token)
 
     print("capability[]=authtype")
