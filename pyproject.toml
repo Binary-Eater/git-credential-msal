@@ -30,6 +30,9 @@ classifiers = [
     "Topic :: Software Development :: Version Control :: Git",
 ]
 
+[project.optional-dependencies]
+pass = ["keyring-pass"]
+
 [project.scripts]
 git-credential-msal = "git_credential_msal.main:main"
 

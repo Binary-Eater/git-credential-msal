@@ -14,6 +14,10 @@ Required dependencies
 -   `keyring`
 -   `pyxdg`
 
+Optional dependencies
+
+-   `keyring-pass`
+
 ## Installation
 
 ### Installing from source
@@ -21,6 +25,9 @@ Required dependencies
 ``` {.bash org-language="sh"}
 cd git-credential-msal
 python -m pip install .
+
+# If you want to use pass in place of a Secret Service API provider
+python -m pip install .[pass]
 ```
 
 ## Setup
