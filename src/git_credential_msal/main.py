@@ -270,7 +270,7 @@ def msal_acquire_oidc_id_token(
         )[0]["secret"]
 
     put_msal_cache(keyring_name, cache, allow_insecure)
-    put_http_cache(keyring_name, http_cache)
+    put_http_cache(cache_name, http_cache)
     return id_token
 
 
