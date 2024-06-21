@@ -35,7 +35,10 @@ If you are only going to use this helper for a select few repos, you could
 consider not using the `--global` flag.
 
 You may want to use this helper in combination with another helper that supports
-the store action.
+the store action. This is especially helpful if your system does not have a
+keyring provider present, so you can use the auxiliary credential helper to
+minimize Microsoft SSO prompts during a development session. The order is
+important since you want the `cache` credential helper checked before `msal`.
 
 ``` {.bash org-language="sh"}
 git config --global --add credential.helper cache
