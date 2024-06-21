@@ -164,7 +164,7 @@ def put_msal_cache_insecure(name: str, data: str, allow_insecure: bool):
     if not allow_insecure:
         return
 
-    os.makedirs(cache_dir, exist_ok=True)
+    os.makedirs(cache_dir, exist_ok=True, mode=0o700)
     msal_cache_name = f"msal_cache_{name}"
     msal_cache_path = os.path.join(cache_dir, msal_cache_name)
     with open(msal_cache_path, "w") as f:
@@ -193,7 +193,7 @@ def get_http_cache(name: str) -> dict:
 
 def put_http_cache(name: str, http_cache: dict):
     http_cache_name = f"http_cache_{name}"
-    os.makedirs(cache_dir, exist_ok=True)
+    os.makedirs(cache_dir, exist_ok=True, mode=0o700)
     http_cache_path = os.path.join(cache_dir, http_cache_name)
     pickle.dump(http_cache, open(http_cache_path, "wb"))
 
