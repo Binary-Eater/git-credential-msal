@@ -136,7 +136,11 @@ def extract_entra_ids_from_git_config(helper_pairs: dict[str, str]) -> tuple[str
 
 def get_msal_cache(name: str) -> SerializableTokenCache:
     cache = SerializableTokenCache()
-    data = keyring.get_password("system", name)
+    data = None
+    try:
+        data = keyring.get_password("system", name)
+    except keyring.errors.NoKeyringError:
+        pass
 
     if data:
         cache.deserialize(data)
@@ -147,7 +151,10 @@ def get_msal_cache(name: str) -> SerializableTokenCache:
 def put_msal_cache(name: str, cache: SerializableTokenCache):
     if cache.has_state_changed:
         data = cache.serialize()
-        keyring.set_password("system", name, data)
+        try:
+            keyring.set_password("system", name, data)
+        except keyring.errors.NoKeyringError:
+            pass
 
 
 def get_http_cache(name: str) -> dict:
