@@ -40,6 +40,11 @@ keyring provider present, so you can use the auxiliary credential helper to
 minimize Microsoft SSO prompts during a development session. The order is
 important since you want the `cache` credential helper checked before `msal`.
 
+**NOTE:** This does not store the cache related to the OAuth2.0 refresh token
+that is stored in the keyring. This cache is useful for not needing to
+re-authenticate for up to 90 days. Have a look at the Device Authorization Grant
+section of the documentation for more details.
+
 ``` {.bash org-language="sh"}
 git config --global --add credential.helper cache
 git config --global --add credential.helper msal
@@ -53,6 +58,20 @@ using the `-d` / `--device-code` in your `.gitconfig`.
 ``` conf
 [credential]
     helper = msal -d
+```
+
+Many headless setups will likely not have a keyring provider such as GNOME
+Keyring or KDE Wallet since such providers on Linux are heavily tied into
+desktop environments. If wishing to persist the Microsoft Authentication cache
+(which enables authentication persistence for up to 90 days), use the `-i` /
+`--insecure` flag along with the device code flag in your `.gitconfig`.
+
+* https://learn.microsoft.com/en-us/entra/identity-platform/refresh-tokens#token-lifetime
+* https://learn.microsoft.com/en-us/entra/identity-platform/refresh-tokens#token-revocation
+
+``` conf
+[credential]
+    helper = msal -d -i
 ```
 
 To configure the Microsoft Entra Id application client id and tenant id that
