@@ -145,10 +145,11 @@ def get_msal_cache_insecure(name: str) -> str:
 
 
 def get_msal_cache(name: str) -> SerializableTokenCache:
+    keyring_name = f"git-credential-msal_{name}"
     cache = SerializableTokenCache()
     data = None
     try:
-        data = keyring.get_password("system", name)
+        data = keyring.get_password("system", keyring_name)
     except keyring.errors.NoKeyringError:
         pass
     if not data:
@@ -172,10 +173,11 @@ def put_msal_cache_insecure(name: str, data: str, allow_insecure: bool):
 
 
 def put_msal_cache(name: str, cache: SerializableTokenCache, allow_insecure: bool):
+    keyring_name = f"git-credential-msal_{name}"
     if cache.has_state_changed:
         data = cache.serialize()
         try:
-            keyring.set_password("system", name, data)
+            keyring.set_password("system", keyring_name, data)
         except keyring.errors.NoKeyringError:
             put_msal_cache_insecure(name, data, allow_insecure)
 
@@ -221,8 +223,7 @@ def msal_acquire_oidc_id_token(
     scopes = ["email openid User.Read"]
     id_token = None
     cache_name = f"{tenant_id}_{client_id}"
-    keyring_name = f"git-credential-msal_{cache_name}"
-    cache = get_msal_cache(keyring_name)
+    cache = get_msal_cache(cache_name)
     http_cache = get_http_cache(cache_name)
 
     app = PublicClientApplication(
@@ -269,7 +270,7 @@ def msal_acquire_oidc_id_token(
             },
         )[0]["secret"]
 
-    put_msal_cache(keyring_name, cache, allow_insecure)
+    put_msal_cache(cache_name, cache, allow_insecure)
     put_http_cache(cache_name, http_cache)
     return id_token
 
