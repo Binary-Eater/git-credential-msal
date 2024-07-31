@@ -207,7 +207,7 @@ def jwt_expired_value(token: str) -> int:
 
     token_exp = token_decoded["exp"]
     # Convert JWT exp NumericDate attribute to Python datetime object
-    token_exp_datetime = datetime.fromisoformat("1970-01-01T00:00:00Z") + timedelta(
+    token_exp_datetime = datetime.fromisoformat("1970-01-01T00:00:00+00:00") + timedelta(
         seconds=token_exp
     )
 
