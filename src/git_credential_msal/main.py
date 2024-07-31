@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: MIT
 
+# Bring standard collection type hinting generics to python<3.9
+from __future__ import annotations
+
 # pip install msal
 from msal import PublicClientApplication
 from msal import SerializableTokenCache
