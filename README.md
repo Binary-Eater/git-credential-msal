@@ -23,6 +23,14 @@ cd git-credential-msal
 python3 -m pip install .
 ```
 
+If you run into issues with the above, first verify that the latest version of
+`pip` is installed. To avoid a conflict with the system's package manager,
+installing a newer version of `pip` in the user site-packages is recommended.
+
+``` {.bash org-language="sh"}
+python3 -m pip install --upgrade --user pip
+```
+
 ## Setup
 
 Run the following to have `git` utilize the credential helper.
