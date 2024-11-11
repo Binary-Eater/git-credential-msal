@@ -17,15 +17,15 @@ from datetime import timezone
 # pip install keyring
 import keyring
 
+# pip install pyxdg
+import xdg.BaseDirectory
+
 import argparse
 import os
 import pickle
 import re
 import subprocess
 import sys
-
-# pip install pyxdg
-import xdg.BaseDirectory
 
 from importlib.metadata import version, PackageNotFoundError
 
