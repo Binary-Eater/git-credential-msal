@@ -7,7 +7,17 @@ post](https://binary-eater.github.io/posts/git_oidc/).
 
 ## Dependencies
 
-Required dependencies
+### Must be manually installed by the user
+
+-   `git>=2.46`
+    - [Installation instructions](https://git-scm.com/downloads)
+      - [Linux/UNIX](https://git-scm.com/downloads/linux)
+      - [Windows](https://git-scm.com/downloads/win)
+      - [macOS](https://git-scm.com/downloads/mac)
+    - [Related changelog entry](https://github.com/git/git/blob/b31fb630c0fc6869a33ed717163e8a1210460d94/Documentation/RelNotes/2.46.0.txt#L10-L12)
+    - [Related commit](https://github.com/git/git/commit/789ec5bd359aae0dcaacf3e3d0eb8bb00bd827bf)
+
+### Handled by the installation process
 
 -   `msal-python`
 -   `pyjwt`
