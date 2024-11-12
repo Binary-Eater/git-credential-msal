@@ -304,6 +304,13 @@ def main():
 
     # Make sure the git implementation supports the `authtype` token.
     if not authtype_accepted(helper_pairs):
+        print(
+            """git support for the "authtype" credential field is required for git-credential-msal""",
+            file=sys.stderr,
+        )
+        print(
+            "Please make sure git version 2.46 or newer is installed", file=sys.stderr
+        )
         exit(0)
 
     # Make sure the server specified that a Bearer token is acceptable.
