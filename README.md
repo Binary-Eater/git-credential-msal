@@ -30,15 +30,15 @@ post](https://binary-eater.github.io/posts/git_oidc/).
 
 ``` {.bash org-language="sh"}
 cd git-credential-msal
-python3 -m pip install .
+python3 -m pipx install .
 ```
 
 If you run into issues with the above, first verify that the latest version of
-`pip` is installed. To avoid a conflict with the system's package manager,
-installing a newer version of `pip` in the user site-packages is recommended.
+`pipx` is installed. To avoid a conflict with the system's package manager,
+installing a newer version of `pipx` in the user site-packages is recommended.
 
 ``` {.bash org-language="sh"}
-python3 -m pip install --upgrade --user pip
+python3 -m pipx install --upgrade --user pipx
 ```
 
 ## Setup
