@@ -147,14 +147,14 @@ def get_msal_cache_insecure(name: str) -> str:
         return None
 
 
-def get_msal_cache(name: str) -> SerializableTokenCache:
+def get_msal_cache(name: str, use_keyring: bool) -> SerializableTokenCache:
     keyring_name = f"git-credential-msal_{name}"
     cache = SerializableTokenCache()
     data = None
-    try:
+
+    if use_keyring:
         data = keyring.get_password("system", keyring_name)
-    except keyring.errors.NoKeyringError:
-        pass
+
     if not data:
         data = get_msal_cache_insecure(name)
 
@@ -164,10 +164,7 @@ def get_msal_cache(name: str) -> SerializableTokenCache:
     return cache
 
 
-def put_msal_cache_insecure(name: str, data: str, allow_insecure: bool):
-    if not allow_insecure:
-        return
-
+def put_msal_cache_insecure(name: str, data: str):
     os.makedirs(cache_dir, exist_ok=True, mode=0o700)
     msal_cache_name = f"msal_cache_{name}"
     msal_cache_path = os.path.join(cache_dir, msal_cache_name)
@@ -175,14 +172,14 @@ def put_msal_cache_insecure(name: str, data: str, allow_insecure: bool):
         f.write(data)
 
 
-def put_msal_cache(name: str, cache: SerializableTokenCache, allow_insecure: bool):
+def put_msal_cache(name: str, cache: SerializableTokenCache, use_keyring: bool):
     keyring_name = f"git-credential-msal_{name}"
     if cache.has_state_changed:
         data = cache.serialize()
-        try:
+        if use_keyring:
             keyring.set_password("system", keyring_name, data)
-        except keyring.errors.NoKeyringError:
-            put_msal_cache_insecure(name, data, allow_insecure)
+        else:
+            put_msal_cache_insecure(name, data)
 
 
 def get_http_cache(name: str) -> dict:
@@ -220,13 +217,13 @@ def jwt_expired_value(token: str) -> int:
 def msal_acquire_oidc_id_token(
     client_id: str,
     tenant_id: str,
-    device_code: bool = False,
-    allow_insecure: bool = False,
+    device_code: bool,
+    use_keyring: bool,
 ) -> str:
     scopes = ["email openid User.Read"]
     id_token = None
     cache_name = f"{tenant_id}_{client_id}"
-    cache = get_msal_cache(cache_name)
+    cache = get_msal_cache(cache_name, use_keyring)
     http_cache = get_http_cache(cache_name)
 
     app = PublicClientApplication(
@@ -273,7 +270,7 @@ def msal_acquire_oidc_id_token(
             },
         )[0]["secret"]
 
-    put_msal_cache(cache_name, cache, allow_insecure)
+    put_msal_cache(cache_name, cache, use_keyring)
     put_http_cache(cache_name, http_cache)
     return id_token
 
@@ -342,7 +339,7 @@ def main():
     os.set_inheritable(1, False)
 
     id_token = msal_acquire_oidc_id_token(
-        client_id, tenant_id, device_code=args.device_code, allow_insecure=args.insecure
+        client_id, tenant_id, device_code=args.device_code, use_keyring=not args.insecure
     )
     expiry = jwt_expired_value(id_token)
 
