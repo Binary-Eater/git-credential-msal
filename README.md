@@ -9,13 +9,20 @@ post](https://binary-eater.github.io/posts/git_oidc/).
 
 ### Must be manually installed by the user
 
--   `git>=2.46`
+-   `git>=2.54`
     - [Installation instructions](https://git-scm.com/downloads)
       - [Linux/UNIX](https://git-scm.com/downloads/linux)
       - [Windows](https://git-scm.com/downloads/win)
       - [macOS](https://git-scm.com/downloads/mac)
-    - [Related changelog entry](https://github.com/git/git/blob/b31fb630c0fc6869a33ed717163e8a1210460d94/Documentation/RelNotes/2.46.0.txt#L10-L12)
-    - [Related commit](https://github.com/git/git/commit/789ec5bd359aae0dcaacf3e3d0eb8bb00bd827bf)
+    - Support for SSO authentication via the credential helper protocol was
+      initially added with
+      [commit c5c9acf77d](https://github.com/git/git/commit/c5c9acf77d9bced87c758e8c8aba13a438d34802),
+      which first appears in
+      [Git v2.46](https://github.com/git/git/blob/b31fb630c0fc6869a33ed717163e8a1210460d94/Documentation/RelNotes/2.46.0.txt#L10-L12);
+      however, a bug prevented it working correctly. This bug was fixed by
+      [commit ed0f7a62f7](https://github.com/git/git/commit/ed0f7a62f75232896eccb622bfaf9fe56903a261),
+      which first appears in
+      [Git v2.54](https://github.com/git/git/blob/94f057755b7941b321fd11fec1b2e3ca5313a4e0/Documentation/RelNotes/2.54.0.adoc?plain=1#L334-L336).
 
 ### Handled by the installation process
 
