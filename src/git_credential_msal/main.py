@@ -219,6 +219,7 @@ def msal_acquire_oidc_id_token(
     tenant_id: str,
     device_code: bool,
     use_keyring: bool,
+    non_interactive: bool,
 ) -> str:
     scopes = ["email openid User.Read"]
     id_token = None
@@ -240,6 +241,10 @@ def msal_acquire_oidc_id_token(
         acquire_tokens_result = app.acquire_token_silent(scopes=scopes, account=account)
 
     if acquire_tokens_result is None:
+        if non_interactive:
+            print("Non-interactive mode enabled. Cannot re-authenticate.", file=sys.stderr)
+            exit(128)
+
         if device_code:
             device_code_flow = app.initiate_device_flow(scopes=scopes)
             print(device_code_flow["message"], file=sys.stderr)
@@ -297,6 +302,11 @@ def main():
     if args.command != "get":
         exit(0)
 
+    non_interactive_env_var = os.getenv("GIT_CREDENTIAL_MSAL_NON_INTERACTIVE")
+    non_interactive = False
+    if non_interactive_env_var == "1":
+        non_interactive = True
+
     helper_pairs = read_stdin_pairs()
 
     # Make sure the git implementation supports the `authtype` token.
@@ -339,7 +349,11 @@ def main():
     os.set_inheritable(1, False)
 
     id_token = msal_acquire_oidc_id_token(
-        client_id, tenant_id, device_code=args.device_code, use_keyring=not args.insecure
+        client_id,
+        tenant_id,
+        device_code=args.device_code,
+        use_keyring=not args.insecure,
+        non_interactive=non_interactive,
     )
     expiry = jwt_expired_value(id_token)
 

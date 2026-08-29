@@ -119,3 +119,23 @@ consume.
 **NOTE:** the server does need to at minimum advertise `WWW-Authenticate:
 Bearer` in its initial 401 response for `git-credential-msal` to consider
 forwarding the bearer token to the server.
+
+### Non-interactive usage
+
+The initial authentication will have to be interactive. However, one of the
+major benefits of using OIDC as an authentication scheme is that the refresh
+tokens can last up to 90 days. The mechanism is viable for long term
+non-interactive use. If wanting to use `git-credential-msal` in automation like
+`systemd.timer` or `cron` jobs, setting the
+`GIT_CREDENTIAL_MSAL_NON_INTERACTIVE` environment variable to `1` has the
+benefit of avoiding the helper from blocking waiting on interactive
+authentication. Instead, the helper will now return a failure code when
+interactive authentication is required, prompting the user to manually perform
+authentication. Using `git` in such a manner may encourage setting the
+`GIT_TERMINAL_PROMPT` environment variable to `0` as well to disable interactive
+basic authentication prompting.
+
+```sh
+export GIT_CREDENTIAL_MSAL_NON_INTERACTIVE=1
+export GIT_TERMINAL_PROMPT=0
+```
