@@ -276,6 +276,7 @@ def msal_acquire_oidc_id_token(
 
 
 def main():
+    global cache_dir
     parser = argparse.ArgumentParser(
         prog="git-credential-msal",
         description="git-credential-helper for Microsoft SSO auth flows using MSAL",
@@ -283,6 +284,7 @@ def main():
     parser.add_argument("command")
     parser.add_argument("-d", "--device-code", action="store_true")
     parser.add_argument("-i", "--insecure", action="store_true")
+    parser.add_argument("-c", "--cache-dir", default=cache_dir)
     try:
         parser.add_argument(
             "-v", "--version", action="version", version=version("git_credential_msal")
@@ -291,6 +293,9 @@ def main():
         # package is not installed
         pass
     args = parser.parse_args()
+
+    if args.cache_dir is not None:
+        cache_dir = args.cache_dir
 
     # The credential helper can only provide credentials
     # It cannot consume credentials from users to store

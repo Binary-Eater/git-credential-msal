@@ -99,6 +99,17 @@ desktop environments. If wishing to persist the Microsoft Authentication cache
     helper = msal -d -i
 ```
 
+If choosing not to use a keyring (via insecure mode), the OIDC tokens get cached
+to the XDG cache home directory by default. This is either `~/.cache` or
+`$XDG_CACHE_HOME` if set. The XDG cache home configuration can impact other
+applications if not set exclusively for `git-credential-msal`. The `-c` /
+`--cache-dir` flag offers an alternative only for `git-crendential-msal`.
+
+```conf
+[credential]
+    helper = msal -d -i -c /path/to/dump/cache
+```
+
 To configure the Microsoft Entra Id application client id and tenant id that
 `git-credential-msal` will use for SSO, the following commands can be used.
 
